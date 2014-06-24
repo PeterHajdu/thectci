@@ -51,22 +51,22 @@ Describe( a_factory )
   void SetUp()
   {
     test_factory.reset( new TestFactory() );
-    test_factory->register_creator( foo_child::id, foochild_creator );
-    test_factory->register_creator( foo::id, foo_creator );
+    test_factory->register_creator( foo_child::ctci, foochild_creator );
+    test_factory->register_creator( foo::ctci, foo_creator );
   }
 
   It( creates_objects_by_class_id )
   {
-    std::unique_ptr< foo > foochild_instance( test_factory->create( foo_child::id ) );
+    std::unique_ptr< foo > foochild_instance( test_factory->create( foo_child::ctci ) );
     AssertThat( foochild_instance->name(), Equals( "foo child" ) );
 
-    std::unique_ptr< foo > foo_instance( test_factory->create( foo::id ) );
+    std::unique_ptr< foo > foo_instance( test_factory->create( foo::ctci ) );
     AssertThat( foo_instance->name(), Equals( "foo" ) );
   }
 
   It( returns_nullptr_if_creator_is_not_registered_for_the_class )
   {
-    std::unique_ptr< foo > foo_instance( test_factory->create( second_foo_child::id ) );
+    std::unique_ptr< foo > foo_instance( test_factory->create( second_foo_child::ctci ) );
     AssertThat( foo_instance.get(), Equals( static_cast< foo* >( nullptr ) ) );
   }
 
