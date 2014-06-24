@@ -1,4 +1,4 @@
-#include <thectci/event.hpp>
+#include <thectci/dispatcher.hpp>
 
 #include <igloo/igloo.h>
 #include <igloo/igloo_alt.h>
