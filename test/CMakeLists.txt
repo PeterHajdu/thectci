@@ -4,6 +4,8 @@ include_directories(igloo)
 
 set(TEST_SOURCE_FILES
     test_runner.cpp
+    test_hash.cpp
+    test_compile_time_value.cpp
     )
 
 
