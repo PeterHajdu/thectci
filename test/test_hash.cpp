@@ -9,6 +9,8 @@ Describe( a_hash )
   It( is_a_compile_time_hash )
   {
     typedef the::ctci::compile_time< uint32_t, the::ctci::hash( "dogfood" ) > hash_type;
+    hash_type unused_variable;
+    (void)unused_variable;
   }
 
   It( is_the_djb2_hash_algorithm )
