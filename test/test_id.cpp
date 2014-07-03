@@ -23,6 +23,18 @@ namespace
       add_polymorphic_ctci( "Child" );
   };
 
+  class PureParent
+  {
+    public:
+      add_pure_polymorphic_ctci();
+  };
+
+  class PureParentChild : public PureParent
+  {
+    public:
+      add_polymorphic_ctci( "pure_parent_child" );
+  };
+
 }
 
 Describe( a_ctci_id )
@@ -47,5 +59,14 @@ Describe( a_ctci_id )
     AssertThat( child_instance.polymorphic_ctci(), Equals( parent_referenc_to_child.polymorphic_ctci() ) );
   }
 
+};
+
+Describe( a_pure_polymorphic_ctci )
+{
+  It( makes_sure_children_have_a_polymorphic_ctci )
+  {
+    PureParentChild child;
+    (void)child;
+  }
 };
 
