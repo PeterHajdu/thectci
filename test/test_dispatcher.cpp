@@ -46,7 +46,6 @@ namespace
   void register_listener( the::ctci::Dispatcher& dispatcher, Listener& listener )
   {
     dispatcher.register_listener< typename Listener::event_type >(
-        Listener::event_type::ctci,
         std::bind(
           &Listener::handle_event,
           &listener,
@@ -77,8 +76,8 @@ Describe( a_dispatcher )
     BListener blistener;
     register_listener( *test_dispatcher, blistener );
 
-    test_dispatcher->dispatch( EventA::ctci, aevent );
-    test_dispatcher->dispatch( EventB::ctci, bevent );
+    test_dispatcher->dispatch( aevent );
+    test_dispatcher->dispatch( bevent );
     AssertThat( alistener.dispatched_event, Equals( &aevent ) );
     AssertThat( alistener2.dispatched_event, Equals( &aevent ) );
     AssertThat( blistener.dispatched_event, Equals( &bevent ) );

@@ -23,15 +23,15 @@ class Dispatcher
 {
   public:
     template < class Event >
-    void register_listener( Id class_id, typename Callback< Event >::type listener )
+    void register_listener( typename Callback< Event >::type listener )
     {
-      get_dispatcher_for< Event >( class_id ).register_listener( listener );
+      get_dispatcher_for< Event >( Event::ctci ).register_listener( listener );
     }
 
     template < typename Event >
-    void dispatch( Id class_id, const Event& event )
+    void dispatch( const Event& event )
     {
-      auto dispatcher_iterator( m_dispatchers.find( class_id ) );
+      auto dispatcher_iterator( m_dispatchers.find( Event::ctci ) );
       if ( m_dispatchers.end() == dispatcher_iterator )
       {
         return;
