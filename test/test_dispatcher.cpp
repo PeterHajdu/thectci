@@ -9,12 +9,12 @@ namespace
 {
   struct EventA
   {
-    add_ctci( "EventA" );
+    add_polymorphic_ctci( "EventA" );
   };
 
-  struct EventB
+  struct EventB : public EventA
   {
-    add_ctci( "EventB" );
+    add_polymorphic_ctci( "EventB" );
   };
 
   template < class Event >
@@ -80,6 +80,18 @@ Describe( a_dispatcher )
     test_dispatcher->dispatch( bevent );
     AssertThat( alistener.dispatched_event, Equals( &aevent ) );
     AssertThat( alistener2.dispatched_event, Equals( &aevent ) );
+    AssertThat( blistener.dispatched_event, Equals( &bevent ) );
+  }
+
+  It( dispatches_events_by_polymorphic_id )
+  {
+    AListener alistener;
+    register_listener( *test_dispatcher, alistener );
+    BListener blistener;
+    register_listener( *test_dispatcher, blistener );
+    test_dispatcher->polymorphic_dispatch( aevent );
+    test_dispatcher->polymorphic_dispatch( static_cast<const EventA& >( bevent ) );
+    AssertThat( alistener.dispatched_event, Equals( &aevent ) );
     AssertThat( blistener.dispatched_event, Equals( &bevent ) );
   }
 

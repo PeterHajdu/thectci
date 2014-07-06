@@ -31,7 +31,22 @@ class Dispatcher
     template < typename Event >
     void dispatch( const Event& event )
     {
-      auto dispatcher_iterator( m_dispatchers.find( Event::ctci ) );
+      dispatch( Event::ctci, event );
+    }
+
+
+    template < typename Event >
+    void polymorphic_dispatch( const Event& event )
+    {
+      dispatch( event.polymorphic_ctci(), event );
+    }
+
+  private:
+
+    template < typename Event >
+    void dispatch( Id class_id, const Event& event )
+    {
+      auto dispatcher_iterator( m_dispatchers.find( class_id ) );
       if ( m_dispatchers.end() == dispatcher_iterator )
       {
         return;
@@ -40,7 +55,6 @@ class Dispatcher
       static_cast< ExactDispatcher< Event >& >( *( dispatcher_iterator->second ) ).dispatch( event );
     }
 
-  private:
     class DispatcherInterface
     {
       public:
