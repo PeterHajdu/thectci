@@ -56,6 +56,11 @@ class Factory
       return creator_iterator->second.get().create();
     }
 
+    bool is_registered( Id class_id ) const
+    {
+      return m_creators.find( class_id ) != m_creators.end();
+    }
+
   private:
     typedef std::reference_wrapper< BaseCreator > CreatorReference;
     typedef std::unordered_map< Id, CreatorReference > Creators;

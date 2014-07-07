@@ -70,6 +70,12 @@ Describe( a_factory )
     AssertThat( foo_instance.get(), Equals( static_cast< foo* >( nullptr ) ) );
   }
 
+  It( can_tell_wether_a_class_is_registered_or_not )
+  {
+    AssertThat( test_factory->is_registered( foo_child::ctci ), Equals( true ) );
+    AssertThat( test_factory->is_registered( 0 ), Equals( false ) );
+  }
+
   typedef the::ctci::Factory< foo > TestFactory;
   std::unique_ptr< TestFactory > test_factory;
   the::ctci::ExactCreator< foo, foo_child > foochild_creator;
