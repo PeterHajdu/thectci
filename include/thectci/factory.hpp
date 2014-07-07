@@ -41,7 +41,7 @@ class Factory
 
     void register_creator( Id class_id, BaseCreator& base_creator )
     {
-      assert( m_creators.find( class_id ) == end( m_creators ) );
+      assert( !is_registered( class_id ) );
       m_creators.emplace( std::make_pair( class_id, std::ref( base_creator ) ) );
     }
 
