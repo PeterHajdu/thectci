@@ -49,10 +49,10 @@ template < typename Component >
 void
 ComponentRegistry::register_component( Component& component )
 {
-  m_components.emplace( std::make_pair(
+  m_components.emplace(
         Component::ctci,
         BaseComponentHolder::Pointer(
-          new ComponentHolder< Component >( component ) ) ) );
+          new ComponentHolder< Component >( component ) ) );
 }
 
 template < typename Component >

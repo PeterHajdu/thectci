@@ -25,7 +25,7 @@ class Dispatcher
     template < class Event >
     void register_listener( typename Callback< Event >::type listener )
     {
-      get_dispatcher_for< Event >( Event::ctci ).register_listener( listener );
+      get_dispatcher_for< Event >().register_listener( listener );
     }
 
     template < typename Event >
@@ -87,14 +87,14 @@ class Dispatcher
     };
 
     template < class Event >
-    ExactDispatcher<Event>& get_dispatcher_for( Id class_id )
+    ExactDispatcher<Event>& get_dispatcher_for()
     {
-      auto dispatcher_iterator( m_dispatchers.find( class_id ) );
+      auto dispatcher_iterator( m_dispatchers.find( Event::ctci ) );
       if ( m_dispatchers.end() == dispatcher_iterator )
       {
         auto emplace_return( m_dispatchers.emplace(
               std::make_pair(
-                class_id,
+                Event::ctci,
                 DispatcherInterface::Pointer(
                   new ExactDispatcher< Event >() ) ) ) );
         assert( emplace_return.second );
