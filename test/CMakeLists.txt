@@ -8,6 +8,7 @@ set(TEST_SOURCE_FILES
     test_id.cpp
     test_factory.cpp
     test_dispatcher.cpp
+    test_component_registry.cpp
     )
 
 
