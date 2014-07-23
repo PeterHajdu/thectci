@@ -43,6 +43,20 @@ namespace
       const TestEvent* last_event_dispatched{ nullptr };
       const TestEvent* last_child_event_dispatched{ nullptr };
   };
+
+  class MultiplexerBundle
+  {
+    public:
+      MultiplexerBundle( the::ctci::Multiplexer& test_multiplexer )
+        : dispatcher_bundle( multiplexer )
+      {
+        test_multiplexer.register_multiplexer( multiplexer );
+      }
+
+      the::ctci::Multiplexer multiplexer;
+      DispatcherBundle dispatcher_bundle;
+  };
+
 }
 
 Describe( a_multiplexer )
@@ -55,12 +69,17 @@ Describe( a_multiplexer )
     {
       dispatchers.emplace_back( new DispatcherBundle( *test_multiplexer ) );
     }
+
+    for ( size_t i( 0 ); i < number_of_multiplexers; ++i )
+    {
+      multiplexers.emplace_back( new MultiplexerBundle( *test_multiplexer ) );
+    }
   }
 
   bool was_dispatched( const TestEvent& event ) const
   {
     return std::all_of( std::begin( dispatchers ), std::end( dispatchers ),
-       [ &event ]( const BundlePointer& bundle )
+       [ &event ]( const DispatcherBundlePointer& bundle )
        {
           return bundle->last_event_dispatched == &event;
        } );
@@ -76,7 +95,7 @@ Describe( a_multiplexer )
   bool was_dispatched_as_child( const TestEvent& event ) const
   {
     return std::all_of( std::begin( dispatchers ), std::end( dispatchers ),
-       [ &event ]( const BundlePointer& bundle )
+       [ &event ]( const DispatcherBundlePointer& bundle )
        {
           return bundle->last_child_event_dispatched == &event;
        } );
@@ -89,10 +108,49 @@ Describe( a_multiplexer )
     AssertThat( was_dispatched_as_child( event ), Equals( true ) );
   }
 
+  bool was_forwarded( const TestEvent& event ) const
+  {
+    return std::all_of( std::begin( multiplexers ), std::end( multiplexers ),
+       [ &event ]( const MultiplexerBundlePointer& bundle )
+       {
+          return bundle->dispatcher_bundle.last_event_dispatched == &event;
+       } );
+  }
+
+  It( forwards_events_to_registered_multiplexers )
+  {
+    TestEvent event;
+    test_multiplexer->dispatch( event );
+    AssertThat( was_forwarded( event ), Equals( true ) );
+  }
+
+  bool was_forwarded_as_child( const TestEvent& event ) const
+  {
+    return std::all_of( std::begin( multiplexers ), std::end( multiplexers ),
+       [ &event ]( const MultiplexerBundlePointer& bundle )
+       {
+          return bundle->dispatcher_bundle.last_child_event_dispatched == &event;
+       } );
+  }
+
+  It( forwards_events_to_registered_multiplexers_polymorphic )
+  {
+    TestEventChild event;
+    test_multiplexer->polymorphic_dispatch( static_cast< const TestEvent& >( event ) );
+    AssertThat( was_forwarded_as_child( event ), Equals( true ) );
+  }
+
   const size_t number_of_dispatchers{ 5 };
-  std::unique_ptr< the::ctci::Multiplexer > test_multiplexer;
-  typedef std::unique_ptr< DispatcherBundle > BundlePointer;
-  typedef std::vector< BundlePointer > BundleContainer;
-  BundleContainer dispatchers;
+  const size_t number_of_multiplexers{ 5 };
+  typedef std::unique_ptr< the::ctci::Multiplexer > MultiplexerPointer;
+  MultiplexerPointer test_multiplexer;
+
+  typedef std::unique_ptr< MultiplexerBundle > MultiplexerBundlePointer;
+  typedef std::vector< MultiplexerBundlePointer > MultiplexerBundleContainer;
+  MultiplexerBundleContainer multiplexers;
+
+  typedef std::unique_ptr< DispatcherBundle > DispatcherBundlePointer;
+  typedef std::vector< DispatcherBundlePointer > DispatcherBundleContainer;
+  DispatcherBundleContainer dispatchers;
 };
 

@@ -18,26 +18,46 @@ class Multiplexer
       m_dispatchers.emplace_back( dispatcher );
     }
 
-    template < typename Event >
-    void polymorphic_dispatch( const Event& event ) const
+    void register_multiplexer( const Multiplexer& multiplexer )
     {
-      for ( const auto& dispatcher : m_dispatchers )
-      {
-        dispatcher.get().polymorphic_dispatch( event );
-      }
+      m_multiplexers.emplace_back( multiplexer );
     }
 
     template < typename Event >
     void dispatch( const Event& event ) const
     {
-      for ( const auto& dispatcher : m_dispatchers )
-      {
-        dispatcher.get().dispatch( event );
-      }
+      dispatch_on_elements_of( m_dispatchers, event );
+      dispatch_on_elements_of( m_multiplexers, event );
+    }
+
+    template < typename Event >
+    void polymorphic_dispatch( const Event& event ) const
+    {
+      polymorphic_dispatch_on_elements_of( m_dispatchers, event );
+      polymorphic_dispatch_on_elements_of( m_multiplexers, event );
     }
 
   private:
+    template < typename Container, typename Event >
+    void dispatch_on_elements_of( const Container& container, const Event& event ) const
+    {
+      for ( const auto& element : container )
+      {
+        element.get().dispatch( event );
+      }
+    }
+
+    template < typename Container, typename Event >
+    void polymorphic_dispatch_on_elements_of( const Container& container, const Event& event ) const
+    {
+      for ( const auto& element : container )
+      {
+        element.get().polymorphic_dispatch( event );
+      }
+    }
+
     std::vector< std::reference_wrapper< const Dispatcher > > m_dispatchers;
+    std::vector< std::reference_wrapper< const Multiplexer > > m_multiplexers;
 };
 
 }
