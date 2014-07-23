@@ -9,6 +9,7 @@ set(TEST_SOURCE_FILES
     test_factory.cpp
     test_dispatcher.cpp
     test_component_registry.cpp
+    test_multiplexer.cpp
     )
 
 
