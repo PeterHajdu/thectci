@@ -29,14 +29,14 @@ class Dispatcher
     }
 
     template < typename Event >
-    void dispatch( const Event& event )
+    void dispatch( const Event& event ) const
     {
       dispatch( Event::ctci, event );
     }
 
 
     template < typename Event >
-    void polymorphic_dispatch( const Event& event )
+    void polymorphic_dispatch( const Event& event ) const
     {
       dispatch( event.polymorphic_ctci(), event );
     }
@@ -44,7 +44,7 @@ class Dispatcher
   private:
 
     template < typename Event >
-    void dispatch( Id class_id, const Event& event )
+    void dispatch( Id class_id, const Event& event ) const
     {
       auto dispatcher_iterator( m_dispatchers.find( class_id ) );
       if ( m_dispatchers.end() == dispatcher_iterator )
@@ -74,7 +74,7 @@ class Dispatcher
           m_listeners.emplace_back( listener );
         }
 
-        void dispatch( parameter_type event )
+        void dispatch( parameter_type event ) const
         {
           for ( const auto& listener : m_listeners )
           {
