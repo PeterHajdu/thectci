@@ -22,7 +22,11 @@ class ServiceRegistry
       return instance().m_services.component< T >();
     }
 
+    ServiceRegistry( const ServiceRegistry& ) = delete;
+    ServiceRegistry& operator=( const ServiceRegistry& ) = delete;
   private:
+    ServiceRegistry() = default;
+
     static ServiceRegistry& instance();
 
     typedef ComponentRegistry Services;
