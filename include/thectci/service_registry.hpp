@@ -34,8 +34,8 @@ class AutoServiceRegister
 {
   public:
     template < typename... Args >
-    AutoServiceRegister( const Args&... args )
-      : m_service_instance( args... )
+    AutoServiceRegister( Args&&... args )
+      : m_service_instance( std::forward<Args>( args )... )
     {
       ServiceRegistry::register_service< ServiceInterface >( m_service_instance );
     }
