@@ -45,4 +45,5 @@ endif(sanitize)
 
 add_subdirectory(test)
 add_subdirectory(include)
+add_subdirectory(src)
 
