@@ -48,6 +48,12 @@ class AutoServiceRegister
     ServiceImplementation m_service_instance;
 };
 
+template < typename ServiceInterface >
+ServiceInterface& service()
+{
+  return ServiceRegistry::service< ServiceInterface >();
+}
+
 }
 
 }

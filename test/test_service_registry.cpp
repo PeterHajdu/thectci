@@ -53,10 +53,20 @@ namespace
 Describe( the_service_registry )
 {
 
-  It( allows_arbitrary_class_registration )
+  void SetUp()
   {
     the::ctci::ServiceRegistry::register_service< ArbitraryClass >( arbitrary_object );
+  }
+
+  It( allows_arbitrary_class_registration )
+  {
     ArbitraryClass& retrieved_service( the::ctci::ServiceRegistry::service< ArbitraryClass >() );
+    AssertThat( &retrieved_service, Equals( &arbitrary_object ) );
+  }
+
+  It( has_a_short_access_function )
+  {
+    ArbitraryClass& retrieved_service( the::ctci::service< ArbitraryClass >() );
     AssertThat( &retrieved_service, Equals( &arbitrary_object ) );
   }
 
