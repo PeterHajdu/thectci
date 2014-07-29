@@ -54,6 +54,10 @@ class Dispatcher
       }
     }
 
+    virtual ~Dispatcher() = default;
+    Dispatcher() = default;
+    Dispatcher( const Dispatcher& ) = delete;
+    Dispatcher& operator=( const Dispatcher& ) = delete;
   private:
     std::vector< std::reference_wrapper< const Dispatcher > > m_sub_dispatchers;
 
