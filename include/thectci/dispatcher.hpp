@@ -22,6 +22,11 @@ struct Callback
 class Dispatcher
 {
   public:
+    void register_dispatcher( const Dispatcher& sub_dispatcher )
+    {
+      m_sub_dispatchers.emplace_back( sub_dispatcher );
+    }
+
     template < class Event >
     void register_listener( typename Callback< Event >::type listener )
     {
@@ -32,6 +37,10 @@ class Dispatcher
     void dispatch( const Event& event ) const
     {
       dispatch( Event::ctci, event );
+      for ( const auto& sub_dispatcher : m_sub_dispatchers )
+      {
+        sub_dispatcher.get().dispatch( event );
+      }
     }
 
 
@@ -39,9 +48,14 @@ class Dispatcher
     void polymorphic_dispatch( const Event& event ) const
     {
       dispatch( event.polymorphic_ctci(), event );
+      for ( const auto& sub_dispatcher : m_sub_dispatchers )
+      {
+        sub_dispatcher.get().polymorphic_dispatch( event );
+      }
     }
 
   private:
+    std::vector< std::reference_wrapper< const Dispatcher > > m_sub_dispatchers;
 
     template < typename Event >
     void dispatch( Id class_id, const Event& event ) const
