@@ -124,6 +124,21 @@ Describe( a_dispatcher )
     AssertThat( dispatched_event, Equals( &bevent ) );
   }
 
+  It( sub_dispatchers_can_be_removed )
+  {
+    const EventA* dispatched_event{ nullptr };
+    the::ctci::Dispatcher sub_dispatcher;
+    sub_dispatcher.register_listener< EventA >(
+        [ &dispatched_event ]( const EventA& event )
+        {
+          dispatched_event = &event;
+        } );
+    test_dispatcher->register_dispatcher( sub_dispatcher );
+    test_dispatcher->remove_dispatcher( sub_dispatcher );
+    test_dispatcher->dispatch( aevent );
+    AssertThat( dispatched_event == nullptr, Equals( true ) );
+  }
+
   std::unique_ptr< the::ctci::Dispatcher > test_dispatcher;
   EventA aevent;
   EventB bevent;

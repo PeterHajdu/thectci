@@ -27,6 +27,17 @@ class Dispatcher
       m_sub_dispatchers.emplace_back( sub_dispatcher );
     }
 
+    void remove_dispatcher( const Dispatcher& sub_dispatcher )
+    {
+      m_sub_dispatchers.erase(
+          std::remove_if( std::begin( m_sub_dispatchers ), std::end( m_sub_dispatchers ),
+            [ &sub_dispatcher ]( const std::reference_wrapper< const Dispatcher >& dispatcher_in_container )
+            {
+            return &sub_dispatcher == &dispatcher_in_container.get();
+            } ),
+          std::end( m_sub_dispatchers ) );
+    }
+
     template < class Event >
     void register_listener( typename Callback< Event >::type listener )
     {
