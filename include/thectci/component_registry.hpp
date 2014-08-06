@@ -41,6 +41,9 @@ class ComponentRegistry
     template < typename Component >
     Component& component() const;
 
+    template < typename Component >
+    bool has_component() const;
+
   private:
     std::unordered_map< the::ctci::Id, BaseComponentHolder::Pointer > m_components;
 };
@@ -64,6 +67,13 @@ ComponentRegistry::component() const
   ComponentHolder<Component>& component_holder(
       static_cast< ComponentHolder<Component>& >( *component_iterator->second ) );
   return component_holder.reference;
+}
+
+template < typename Component >
+bool
+ComponentRegistry::has_component() const
+{
+  return m_components.find( Component::ctci )!=m_components.end();
 }
 
 }

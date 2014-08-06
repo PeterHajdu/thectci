@@ -21,6 +21,12 @@ class b
     add_ctci( "b" );
 };
 
+class class_never_registered
+{
+  public:
+    add_ctci( "class_never_registered" );
+};
+
 }
 
 Describe( a_component_registry )
@@ -43,6 +49,12 @@ Describe( a_component_registry )
   {
     make_sure_that_component_is_registered( a_component );
     make_sure_that_component_is_registered( b_component );
+  }
+
+  It( can_check_if_a_component_is_registered_or_not )
+  {
+    AssertThat( test_registry->has_component< a >(), Equals( true ) );
+    AssertThat( test_registry->has_component< class_never_registered >(), Equals( false ) );
   }
 
   std::unique_ptr< the::ctci::ComponentRegistry > test_registry;
