@@ -34,7 +34,7 @@ class Dispatcher
           std::remove_if( std::begin( m_sub_dispatchers ), std::end( m_sub_dispatchers ),
             [ &sub_dispatcher ]( const std::reference_wrapper< const Dispatcher >& dispatcher_in_container )
             {
-            return &sub_dispatcher == &dispatcher_in_container.get();
+              return &sub_dispatcher == &dispatcher_in_container.get();
             } ),
           std::end( m_sub_dispatchers ) );
     }
@@ -64,6 +64,12 @@ class Dispatcher
       {
         sub_dispatcher.get().polymorphic_dispatch( event );
       }
+    }
+
+    void clear()
+    {
+      m_sub_dispatchers.clear();
+      m_dispatchers.clear();
     }
 
     virtual ~Dispatcher() = default;

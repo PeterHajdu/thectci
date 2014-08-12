@@ -21,6 +21,7 @@ namespace
   struct ListenerObject
   {
     typedef Event event_type;
+    typedef std::unique_ptr< ListenerObject< Event > > Pointer;
 
     ListenerObject()
       : dispatched_event( nullptr )
@@ -34,6 +35,10 @@ namespace
     }
 
     const Event* dispatched_event;
+    bool was_not_dispatched() const
+    {
+      return nullptr == dispatched_event;
+    }
 
     ListenerObject( const ListenerObject& ) = delete;
     ListenerObject& operator=( const ListenerObject& ) = delete;
@@ -113,16 +118,27 @@ Describe( a_dispatcher )
   {
     dispatcher->remove_dispatcher( *sub_dispatcher );
     dispatcher->dispatch( aevent );
-    AssertThat( sub_dispatcher_a_listener->dispatched_event == nullptr, Equals( true ) );
+    AssertThat( sub_dispatcher_a_listener->was_not_dispatched(), Equals( true ) );
+  }
+
+  Spec( all_listeners_and_sub_dispatchers_can_be_removed )
+  {
+    dispatcher->clear();
+    dispatcher->dispatch( aevent );
+    dispatcher->dispatch( bevent );
+    AssertThat( sub_dispatcher_a_listener->was_not_dispatched(), Equals( true ) );
+    AssertThat( sub_dispatcher_b_listener->was_not_dispatched(), Equals( true ) );
+    AssertThat( dispatcher_a_listener->was_not_dispatched(), Equals( true ) );
+    AssertThat( dispatcher_b_listener->was_not_dispatched(), Equals( true ) );
   }
 
   std::unique_ptr< the::ctci::Dispatcher > dispatcher;
   std::unique_ptr< the::ctci::Dispatcher > sub_dispatcher;
 
-  std::unique_ptr< AListener > dispatcher_a_listener;
-  std::unique_ptr< BListener > dispatcher_b_listener;
-  std::unique_ptr< AListener > sub_dispatcher_a_listener;
-  std::unique_ptr< BListener > sub_dispatcher_b_listener;
+  AListener::Pointer dispatcher_a_listener;
+  BListener::Pointer dispatcher_b_listener;
+  AListener::Pointer sub_dispatcher_a_listener;
+  BListener::Pointer sub_dispatcher_b_listener;
 
   EventA aevent;
   EventB bevent;
