@@ -58,6 +58,8 @@ Describe( a_dispatcher )
   void SetUp()
   {
     test_dispatcher.reset( new the::ctci::Dispatcher() );
+    sub_dispatcher.reset( new the::ctci::Dispatcher() );
+    test_dispatcher->register_dispatcher( *sub_dispatcher );
   }
 
   Spec( listeners_can_register_by_event_type )
@@ -97,49 +99,31 @@ Describe( a_dispatcher )
 
   It( forwards_events_to_subdispatchers )
   {
-    const EventA* dispatched_event{ nullptr };
-    the::ctci::Dispatcher sub_dispatcher;
-    sub_dispatcher.register_listener< EventA >(
-        [ &dispatched_event ]( const EventA& event )
-        {
-          dispatched_event = &event;
-        } );
-    test_dispatcher->register_dispatcher( sub_dispatcher );
+    AListener alistener;
+    register_listener( *sub_dispatcher, alistener );
     test_dispatcher->dispatch( aevent );
-    AssertThat( dispatched_event, Equals( &aevent ) );
+    AssertThat( alistener.dispatched_event, Equals( &aevent ) );
   }
 
   It( forwards_events_to_subdispatchers_polymorphic )
   {
-    const EventB* dispatched_event{ nullptr };
-    the::ctci::Dispatcher sub_dispatcher;
-    sub_dispatcher.register_listener< EventB >(
-        [ &dispatched_event ]( const EventB& event )
-        {
-          dispatched_event = &event;
-        } );
-
-    test_dispatcher->register_dispatcher( sub_dispatcher );
+    BListener blistener;
+    register_listener( *sub_dispatcher, blistener );
     test_dispatcher->polymorphic_dispatch( static_cast< const EventA& >( bevent ) );
-    AssertThat( dispatched_event, Equals( &bevent ) );
+    AssertThat( blistener.dispatched_event, Equals( &bevent ) );
   }
 
   It( sub_dispatchers_can_be_removed )
   {
-    const EventA* dispatched_event{ nullptr };
-    the::ctci::Dispatcher sub_dispatcher;
-    sub_dispatcher.register_listener< EventA >(
-        [ &dispatched_event ]( const EventA& event )
-        {
-          dispatched_event = &event;
-        } );
-    test_dispatcher->register_dispatcher( sub_dispatcher );
-    test_dispatcher->remove_dispatcher( sub_dispatcher );
+    AListener alistener;
+    register_listener( *sub_dispatcher, alistener );
+    test_dispatcher->remove_dispatcher( *sub_dispatcher );
     test_dispatcher->dispatch( aevent );
-    AssertThat( dispatched_event == nullptr, Equals( true ) );
+    AssertThat( alistener.dispatched_event == nullptr, Equals( true ) );
   }
 
   std::unique_ptr< the::ctci::Dispatcher > test_dispatcher;
+  std::unique_ptr< the::ctci::Dispatcher > sub_dispatcher;
   EventA aevent;
   EventB bevent;
 };
