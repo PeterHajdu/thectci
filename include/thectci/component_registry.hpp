@@ -39,12 +39,18 @@ class ComponentRegistry
     void register_component( Component& );
 
     template < typename Component >
+    void register_polymorphic_component( Component& );
+
+    template < typename Component >
     Component& component() const;
 
     template < typename Component >
     bool has_component() const;
 
   private:
+    template < typename Component >
+    void register_component_with_id( the::ctci::Id, Component& );
+
     std::unordered_map< the::ctci::Id, BaseComponentHolder::Pointer > m_components;
 };
 
@@ -52,8 +58,22 @@ template < typename Component >
 void
 ComponentRegistry::register_component( Component& component )
 {
+  register_component_with_id( component.ctci, component );
+}
+
+template < typename Component >
+void
+ComponentRegistry::register_polymorphic_component( Component& component )
+{
+  register_component_with_id( component.polymorphic_ctci(), component );
+}
+
+template < typename Component >
+void
+ComponentRegistry::register_component_with_id( the::ctci::Id id, Component& component )
+{
   m_components.emplace(
-        Component::ctci,
+        id,
         BaseComponentHolder::Pointer(
           new ComponentHolder< Component >( component ) ) );
 }

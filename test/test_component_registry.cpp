@@ -12,7 +12,13 @@ namespace
 class a
 {
   public:
-    add_ctci( "a" );
+    add_polymorphic_ctci( "a" );
+};
+
+class ChildOfA : public a
+{
+  public:
+    add_polymorphic_ctci( "child_of_a" );
 };
 
 class b
@@ -33,15 +39,15 @@ Describe( a_component_registry )
 {
   void SetUp()
   {
-    test_registry.reset( new the::ctci::ComponentRegistry() );
-    test_registry->register_component( a_component );
-    test_registry->register_component( b_component );
+    registry.reset( new the::ctci::ComponentRegistry() );
+    registry->register_component( a_component );
+    registry->register_component( b_component );
   }
 
   template < class Component >
   void make_sure_that_component_is_registered( Component& component )
   {
-    Component& retrieved_component( test_registry->component<Component>() );
+    Component& retrieved_component( registry->component<Component>() );
     AssertThat( &retrieved_component, Equals( &component ) );
   }
 
@@ -53,11 +59,19 @@ Describe( a_component_registry )
 
   It( can_check_if_a_component_is_registered_or_not )
   {
-    AssertThat( test_registry->has_component< a >(), Equals( true ) );
-    AssertThat( test_registry->has_component< class_never_registered >(), Equals( false ) );
+    AssertThat( registry->has_component< a >(), Equals( true ) );
+    AssertThat( registry->has_component< class_never_registered >(), Equals( false ) );
   }
 
-  std::unique_ptr< the::ctci::ComponentRegistry > test_registry;
+  It( can_register_components_by_polymorphic_ctci )
+  {
+    ChildOfA child_of_component_a;
+    a& base_referenced_component( child_of_component_a );
+    registry->register_polymorphic_component( base_referenced_component );
+    make_sure_that_component_is_registered( child_of_component_a );
+  }
+
+  std::unique_ptr< the::ctci::ComponentRegistry > registry;
   a a_component;
   b b_component;
 };
