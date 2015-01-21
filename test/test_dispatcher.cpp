@@ -132,6 +132,20 @@ Describe( a_dispatcher )
     AssertThat( dispatcher_b_listener->was_not_dispatched(), Equals( true ) );
   }
 
+  It( deletes_smart_listeners_when_token_is_deleted )
+  {
+    bool was_called( false );
+    {
+      auto smart_token( dispatcher->register_smart_listener< EventA >(
+          [ &was_called ]( const EventA& )
+          {
+            was_called = true;
+          } ) );
+    }
+    dispatcher->dispatch( EventA() );
+    AssertThat( was_called, Equals( false ) );
+  }
+
   std::unique_ptr< the::ctci::Dispatcher > dispatcher;
   std::unique_ptr< the::ctci::Dispatcher > sub_dispatcher;
 

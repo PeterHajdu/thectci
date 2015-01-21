@@ -22,7 +22,60 @@ struct Callback
 
 class Dispatcher
 {
+  private:
+    using ListenerId = unsigned long long;
+    class DispatcherInterface
+    {
+      public:
+        typedef std::unique_ptr< DispatcherInterface > Pointer;
+        virtual void deregister_listener( ListenerId ) = 0;
+        virtual ~DispatcherInterface() = default;
+    };
+
   public:
+
+    class SmartToken
+    {
+      public:
+        using Pointer = std::unique_ptr< SmartToken >;
+        SmartToken( ListenerId id, DispatcherInterface& dispatcher )
+          : m_was_released( false )
+          , m_id( id )
+          , m_dispatcher( dispatcher )
+        {
+        }
+
+        ~SmartToken()
+        {
+          deregister_listener();
+        }
+
+        SmartToken( const SmartToken& ) = delete;
+        SmartToken( SmartToken&& ) = delete;
+        SmartToken& operator=( const SmartToken& ) = delete;
+        SmartToken& operator=( SmartToken&& ) = delete;
+
+        void release_token()
+        {
+          m_was_released = true;
+        }
+
+      private:
+        void deregister_listener()
+        {
+          if ( m_was_released )
+          {
+            return;
+          }
+
+          m_dispatcher.deregister_listener( m_id );
+        }
+
+        bool m_was_released;
+        const ListenerId m_id;
+        DispatcherInterface& m_dispatcher;
+    };
+
     void register_dispatcher( const Dispatcher& sub_dispatcher )
     {
       m_sub_dispatchers.emplace_back( sub_dispatcher );
@@ -42,7 +95,14 @@ class Dispatcher
     template < class Event >
     void register_listener( typename Callback< Event >::type listener )
     {
-      get_dispatcher_for< Event >().register_listener( listener );
+      auto token( get_dispatcher_for< Event >().register_listener( std::move( listener ) ) );
+      token->release_token();
+    }
+
+    template < class Event >
+    SmartToken::Pointer register_smart_listener( typename Callback< Event >::type listener )
+    {
+      return get_dispatcher_for< Event >().register_listener( std::move( listener ) );
     }
 
     template < typename Event >
@@ -91,13 +151,6 @@ class Dispatcher
       static_cast< ExactDispatcher< Event >& >( *( dispatcher_iterator->second ) ).dispatch( event );
     }
 
-    class DispatcherInterface
-    {
-      public:
-        typedef std::unique_ptr< DispatcherInterface > Pointer;
-        virtual ~DispatcherInterface() = default;
-    };
-
     template < class Event >
     class ExactDispatcher : public DispatcherInterface
     {
@@ -105,21 +158,31 @@ class Dispatcher
         typedef typename Callback<Event>::type callback_type;
         typedef typename Callback<Event>::parameter_type parameter_type;
 
-        void register_listener( callback_type listener )
+        SmartToken::Pointer register_listener( callback_type listener )
         {
-          m_listeners.emplace_back( listener );
+          m_listeners.emplace( std::make_pair(
+                m_last_id,
+                std::move( listener ) ) );
+          //todo: implement decent id generation
+          return std::make_unique< SmartToken >( m_last_id++, *this );
         }
 
         void dispatch( parameter_type event ) const
         {
-          for ( const auto& listener : m_listeners )
+          for ( const auto& listener_pair : m_listeners )
           {
-            listener( event );
+            listener_pair.second( event );
           }
         }
 
+        virtual void deregister_listener( ListenerId id ) override
+        {
+          m_listeners.erase( id );
+        }
+
       private:
-        std::vector< callback_type > m_listeners;
+        ListenerId m_last_id{ 0u };
+        std::unordered_map< ListenerId, callback_type > m_listeners;
     };
 
     template < class Event >
@@ -142,6 +205,9 @@ class Dispatcher
 
     std::unordered_map< Id, DispatcherInterface::Pointer > m_dispatchers;
 };
+
+using SmartListener = Dispatcher::SmartToken::Pointer;
+
 }
 }
 
