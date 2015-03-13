@@ -2,6 +2,7 @@ src/libthectci.a
 test/test_runner
 test/valgrind.log
 
+*tags
 *core*
 *swp
 *.cmake

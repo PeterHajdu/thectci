@@ -71,6 +71,13 @@ Describe( a_component_registry )
     make_sure_that_component_is_registered( child_of_component_a );
   }
 
+  It( can_update_a_component_to_a_new_value )
+  {
+    a another_a_component;
+    registry->register_component( another_a_component );
+    AssertThat( &registry->component< a >(), Equals( &another_a_component ) );
+  }
+
   std::unique_ptr< the::ctci::ComponentRegistry > registry;
   a a_component;
   b b_component;

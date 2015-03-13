@@ -72,10 +72,7 @@ template < typename Component >
 void
 ComponentRegistry::register_component_with_id( the::ctci::Id id, Component& component )
 {
-  m_components.emplace(
-        id,
-        BaseComponentHolder::Pointer(
-          new ComponentHolder< Component >( component ) ) );
+  m_components[ id ] = std::make_unique< ComponentHolder< Component > >( component );
 }
 
 template < typename Component >
