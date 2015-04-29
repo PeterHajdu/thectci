@@ -94,5 +94,10 @@ Describe( auto_service_register )
     some_class.stuff();
   }
 
+  It( can_return_the_instance_of_the_service )
+  {
+    SomeClassInterface& some_class( the::ctci::ServiceRegistry::service< SomeClassInterface >() );
+    AssertThat( &some_class_interface_register.get(), Equals( &some_class ) );
+  }
 };
 

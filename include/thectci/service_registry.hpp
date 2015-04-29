@@ -44,6 +44,11 @@ class AutoServiceRegister
       ServiceRegistry::register_service< ServiceInterface >( m_service_instance );
     }
 
+    ServiceInterface& get()
+    {
+      return m_service_instance;
+    }
+
   private:
     ServiceImplementation m_service_instance;
 };
